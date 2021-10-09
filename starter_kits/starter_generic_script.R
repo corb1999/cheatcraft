@@ -86,6 +86,10 @@ cash_money <- function(x) {
   # cc <- ifelse(is.na(cc), 0, cc)
   return(cc)}
 
+# POST SCRIPT; alt to using paste0() all the time (i saw this on twitter)
+'%ps%' <- function(lhs, rhs) {
+  return_me <- paste0(lhs, rhs)
+  return(return_me)}
+
 # ^ ====================================
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
