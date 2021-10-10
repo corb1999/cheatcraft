@@ -5,5 +5,5 @@ What is in here?
 - Starter Kits: templates for analysis scripts and other boilerplate starters
 - Utilities: Misc helpful snippets or functions that can be copy-pasted rather than rewritten in different projects
   - Snippets to read and write data/scripts/plots into R
-
+- GG_Helper: templates and skeletons for easier visualization work
 
