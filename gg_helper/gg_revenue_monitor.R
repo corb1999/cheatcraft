@@ -2,17 +2,16 @@
 # revenue monitoring functions ------------------------------------------
 
 # replace the function variable names with the purchase_ prefix !!!!!!!!!!
+#   or add more column names to the data you feed this
 # require(tidyverse)
 # require(scales)
 # require(lubridate)
 
-
-# trend line of monthly revenue
-fun_rev_trend_yrmon <- function(df_func) {
+# trend line of monthly revenue :::::::::::::::::::::::::::::::::::::::::
+fun_rev_trend_yrmon <- function(df_func, plt_title = "Plot") {
   df_func_agg_time <- df_func %>% 
     group_by(purchase_yrmon) %>% 
-    summarise(purchase_count_sum = sum(purchase_count, na.rm = TRUE), 
-              purchase_value_sum = sum(purchase_value, na.rm = TRUE), 
+    summarise(purchase_value_sum = sum(purchase_value, na.rm = TRUE), 
               purchase_value_max = max(purchase_value, na.rm = TRUE), 
               purchase_value_med = median(purchase_value, na.rm = TRUE), 
               purchase_value_mean = mean(purchase_value, na.rm = TRUE)) %>% 
@@ -27,9 +26,9 @@ fun_rev_trend_yrmon <- function(df_func) {
     ggplot(aes(x = purchase_yrmon, y = purchase_value_sum)) + 
     geom_ribbon(aes(ymax = purchase_value_sum, 
                     ymin = min(purchase_value_sum) * 0.98), alpha = 0.15, 
-                fill = "#00A19D") + 
-    geom_line(size = 1.25, color = "#00A19D") +
-    geom_point(size = 3, color = "#00A19D") +
+                fill = "#50CB93") + 
+    geom_line(size = 1.25, color = "#50CB93") +
+    geom_point(size = 3, color = "#50CB93") +
     geom_hline(aes(yintercept = mean(df_func_agg_time$purchase_value_sum)), 
                linetype = 2) + 
     geom_segment(data = df_fun_agg_yr, 
@@ -41,47 +40,59 @@ fun_rev_trend_yrmon <- function(df_func) {
                  filter(purchase_yrmon == max(df_func$purchase_yrmon)), 
                aes(x = purchase_yrmon, y = purchase_value_sum * 1.15, 
                    label = purchase_value_sum), 
-               alpha = 0, color = "#00A19D", size = 3) + 
+               alpha = 0, color = "#50CB93", size = 3) + 
     facet_wrap(vars(purchase_yr), nrow = 1, scales = "free_x") + 
     scale_y_continuous(labels = scales::dollar) + 
     theme_minimal() + coord_cartesian(clip = "off") + 
-    labs(x = "", y = "Revenue Name")
+    labs(x = "", y = "Revenue Name", title = plt_title)
   return_me <- plt1
   return(return_me)}
 
-# view of revenue trends
-fun_rev_trend_yoy <- function(df_func) {
+# view of revenue trends ::::::::::::::::::::::::::::::::::::::::::
+fun_rev_trend_yoy <- function(df_func, plt_title = "Plot") {
   df_func_agg_time <- df_func %>% 
     group_by(purchase_yr, purchase_mon) %>% 
-    summarise(purchase_count_sum = sum(purchase_count, na.rm = TRUE), 
-              purchase_value_sum = sum(purchase_value, na.rm = TRUE), 
+    summarise(purchase_value_sum = sum(purchase_value, na.rm = TRUE), 
               purchase_value_max = max(purchase_value, na.rm = TRUE), 
               purchase_value_med = median(purchase_value, na.rm = TRUE), 
               purchase_value_mean = mean(purchase_value, na.rm = TRUE)) %>% 
     mutate(purchase_yr_cur = ifelse(purchase_yr == max(df_func$purchase_yr), 
                                     TRUE, FALSE))
   df_fun_agg_yr <- df_func_agg_time %>% 
-    group_by(purchase_yr) %>% 
+    group_by(purchase_yr, purchase_yr_cur) %>% 
     summarise(purchase_value_sum_mean = mean(purchase_value_sum), 
               purchase_yrmon_min = min(purchase_mon), 
               purchase_yrmon_max = max(purchase_mon))
+  ytd_rev <- df_func_agg_time %>% filter(purchase_yr_cur == TRUE) %>% 
+    group_by(purchase_yr) %>% summarise(ytdrev = sum(purchase_value_sum))
+  plt_sub <- paste0("Black line = ", ytd_rev$purchase_yr, 
+                    "; YTD Revenue = ", 
+                    dollar(ytd_rev$ytdrev))
   plt1 <- df_func_agg_time %>% 
-    ggplot(aes(x = purchase_mon, 
-               y = purchase_value_sum, 
+    filter(purchase_yr_cur == FALSE) %>% 
+    ggplot(aes(x = purchase_mon, y = purchase_value_sum, 
                color = as.factor(purchase_yr))) + 
-    geom_line(size = 1.25) +
-    geom_point(size = 3) + 
-    geom_segment(data = df_fun_agg_yr, 
-                 aes(x = purchase_yrmon_min, 
-                     xend = purchase_yrmon_max, 
+    geom_line(size = 1) + geom_point(size = 2) + 
+    geom_segment(data = df_fun_agg_yr %>% filter(purchase_yr_cur == FALSE), 
+                 aes(x = purchase_yrmon_min, xend = purchase_yrmon_max, 
                      y = purchase_value_sum_mean, 
                      yend = purchase_value_sum_mean, 
                      color = as.factor(purchase_yr))) + 
+    geom_line(data = df_func_agg_time %>% filter(purchase_yr_cur == TRUE), 
+              size = 1.25, color = "black") + 
+    geom_point(data = df_func_agg_time %>% filter(purchase_yr_cur == TRUE), 
+               size = 3, color = "black") + 
+    geom_segment(data = df_fun_agg_yr %>% filter(purchase_yr_cur == TRUE), 
+                 aes(x = purchase_yrmon_min, xend = purchase_yrmon_max, 
+                     y = purchase_value_sum_mean, 
+                     yend = purchase_value_sum_mean), color = "black") + 
     scale_y_continuous(labels = scales::dollar) + 
     scale_x_continuous(breaks = c(1:12)) + 
+    scale_color_brewer(palette = "Pastel1") + 
     theme_minimal() + theme(legend.position = "top") + 
     coord_cartesian(clip = "off") + 
-    labs(x = "", y = "Revenue Name", color = "")
+    labs(x = "", y = "Revenue Name", color = "", title = plt_title, 
+         subtitle = plt_sub)
   return_me <- plt1
   return(return_me)}
 
@@ -89,10 +100,8 @@ fun_rev_trend_yoy <- function(df_func) {
 
 # tests ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-fun_rev_trend_yoy(df_func = df)
-
 fun_rev_trend_yrmon(df_func = df)
-
+fun_rev_trend_yoy(df_func = df)
 
 # run the below first to perform the tests
 library(tidyverse)
@@ -124,7 +133,8 @@ df <- df %>% as_tibble() %>%
          purchase_yrmon = ymd(paste(purchase_yr, 
                                     purchase_yrmon, 
                                     "01", sep = "-")), 
-         purchase_value = round(purchase_value * purchase_yr / 2021, 
+         purchase_value = round(purchase_value * purchase_yr / 2021 * 
+                                  (1 - purchase_mon / 100), 
                                 digits = 0)) %>% 
   filter(purchase_yrmon < as.Date('2021-10-01'))
 # View(df)
