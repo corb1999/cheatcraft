@@ -1,14 +1,15 @@
 
 # revenue monitoring functions ------------------------------------------
 
-# replace the function variable names with the purchase_ prefix !!!!!!!!!!
-#   or add more column names to the data you feed this
 # require(tidyverse)
 # require(scales)
 # require(lubridate)
 
-# trend line of monthly revenue :::::::::::::::::::::::::::::::::::::::::
-fun_rev_trend_yrmon <- function(df_func, plt_title = "Plot") {
+# trend line of monthly revenue :::::::::::::::::::::::::::::::::::::::
+fun_rev_trend_yrmon <- function(df_func, name_yrmon, name_rev, 
+                                plt_title = "Plot") {
+  df_func <- df_func %>% rename(purchase_yrmon = !!name_yrmon, 
+                                purchase_value = !!name_rev)
   df_func_agg_time <- df_func %>% 
     group_by(purchase_yrmon) %>% 
     summarise(purchase_value_sum = sum(purchase_value, na.rm = TRUE), 
@@ -29,7 +30,7 @@ fun_rev_trend_yrmon <- function(df_func, plt_title = "Plot") {
                 fill = "#50CB93") + 
     geom_line(size = 1.25, color = "#50CB93") +
     geom_point(size = 3, color = "#50CB93") +
-    geom_hline(aes(yintercept = mean(df_func_agg_time$purchase_value_sum)), 
+    geom_hline(aes(yintercept = mean(purchase_value_sum)), 
                linetype = 2) + 
     geom_segment(data = df_fun_agg_yr, 
                  aes(x = purchase_yrmon_min, 
@@ -37,19 +38,26 @@ fun_rev_trend_yrmon <- function(df_func, plt_title = "Plot") {
                      y = purchase_value_sum_mean, 
                      yend = purchase_value_sum_mean)) + 
     geom_label(data = df_func_agg_time %>% 
-                 filter(purchase_yrmon == max(df_func$purchase_yrmon)), 
+                 filter(purchase_yrmon == max(purchase_yrmon)), 
                aes(x = purchase_yrmon, y = purchase_value_sum * 1.15, 
                    label = purchase_value_sum), 
                alpha = 0, color = "#50CB93", size = 3) + 
+    geom_point(data = df_func_agg_time %>% 
+                 filter(purchase_yrmon == max(purchase_yrmon)), 
+               aes(x = purchase_yrmon, y = purchase_value_sum), 
+               color = "#50CB93", size = 5, shape = 1) + 
     facet_wrap(vars(purchase_yr), nrow = 1, scales = "free_x") + 
     scale_y_continuous(labels = scales::dollar) + 
     theme_minimal() + coord_cartesian(clip = "off") + 
-    labs(x = "", y = "Revenue Name", title = plt_title)
+    labs(x = "", y = name_rev, title = plt_title)
   return_me <- plt1
   return(return_me)}
 
-# view of revenue trends ::::::::::::::::::::::::::::::::::::::::::
-fun_rev_trend_yoy <- function(df_func, plt_title = "Plot") {
+# view of revenue trends yoy by month ::::::::::::::::::::::::::::::::::::::
+fun_rev_trend_yoy <- function(df_func, name_yrmon, name_rev, 
+                              plt_title = "Plot") {
+  df_func <- df_func %>% rename(purchase_yrmon = !!name_yrmon, 
+                                purchase_value = !!name_rev)
   df_func_agg_time <- df_func %>% 
     group_by(purchase_yr, purchase_mon) %>% 
     summarise(purchase_value_sum = sum(purchase_value, na.rm = TRUE), 
@@ -91,7 +99,7 @@ fun_rev_trend_yoy <- function(df_func, plt_title = "Plot") {
     scale_color_brewer(palette = "Pastel1") + 
     theme_minimal() + theme(legend.position = "top") + 
     coord_cartesian(clip = "off") + 
-    labs(x = "", y = "Revenue Name", color = "", title = plt_title, 
+    labs(x = "", y = name_rev, color = "", title = plt_title, 
          subtitle = plt_sub)
   return_me <- plt1
   return(return_me)}
@@ -100,8 +108,10 @@ fun_rev_trend_yoy <- function(df_func, plt_title = "Plot") {
 
 # tests ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-fun_rev_trend_yrmon(df_func = df)
-fun_rev_trend_yoy(df_func = df)
+fun_rev_trend_yrmon(df_func = df, name_yrmon = 'purchase_yrmon', 
+                    name_rev = 'purchase_value')
+fun_rev_trend_yoy(df_func = df, name_yrmon = 'purchase_yrmon', 
+                  name_rev = 'purchase_value')
 
 # run the below first to perform the tests
 library(tidyverse)
