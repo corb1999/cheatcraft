@@ -36,6 +36,13 @@ clockin()
 source(file = sourcerpath)
 clockout()
 
+# unzip snippet
+unzip_this <- paste0(getwd(), '/zipped')
+unzip_to <- paste0(getwd(), '/unzipped')
+clockin()
+unzip(zipfile = unzip_this, exdir = unzip_to)
+clockout()
+
 # ^ -----
 
 # data writes -------------------------------------------------
