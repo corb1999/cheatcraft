@@ -9,7 +9,12 @@ library(tidyverse)
 #   encoded variables
 siberian_roulette <- function(df_func, encode_var) {
   df_onehot <- df_func %>% 
-    rename(onehotvar = !!encode_var) %>% select(onehotvar)
+    rename(onehotvar = !!encode_var) %>% 
+    mutate(onehotvar = ifelse(is.na(onehotvar), 
+                              'naval', onehotvar), 
+           onehotvar = ifelse(onehotvar == '', 
+                              'blankval', onehotvar)) %>% 
+    select(onehotvar)
   hott <- data.frame(the_labels = unique(df_onehot$onehotvar)) %>% 
     mutate(new_col_names = paste0('hot1_', encode_var, '_', 
                                   tolower(the_labels)), 
@@ -35,7 +40,7 @@ asdf <- siberian_roulette(df_test, 'bravo')
 View(asdf[1:100, ])
 
 rows_for_test <- 1000
-category_length <- min(80, 10)
+category_length <- min(80, 7)
 
 df_test <- data.frame(alpha = c(1:rows_for_test), 
                       bravo = sample(fruit[1:category_length], 
@@ -45,9 +50,14 @@ df_test <- data.frame(alpha = c(1:rows_for_test),
                       foxtrot = runif(rows_for_test), 
                       golf = rnorm(rows_for_test), 
                       juliet = sample(LETTERS, rows_for_test, 
-                                      replace = TRUE)) %>% 
+                                      replace = TRUE), 
+                      oscar = sample(c(fruit[1:category_length], 
+                                       NA, ''), 
+                                     rows_for_test, 
+                                     replace = TRUE)) %>% 
   as_tibble()
 
 head(df_test)
 unique(df_test$bravo)
 unique(df_test$juliet)
+unique(df_test$oscar)
