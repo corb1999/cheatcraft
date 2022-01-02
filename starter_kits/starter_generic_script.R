@@ -22,7 +22,8 @@ library(scales)
 library(gt)
 set.seed(metadatar$seed_set[1])
 options(digits = 4, max.print = 99, warnPartialMatchDollar = TRUE, 
-        tibble.print_max = 30, scipen = 999, nwarnings = 5)
+        tibble.print_max = 30, scipen = 999, nwarnings = 5, 
+        stringsAsFactors = FALSE)
 mem_used()
 
 # basic helper functions ***************************************************
