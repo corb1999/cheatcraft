@@ -2,6 +2,7 @@
 # a custom theme script customized to my preferences ::::::
 # library(tidyverse)
 my_gg <- function(feedplot) {
+  render_time <- Sys.time()
   return_me <- feedplot + theme_minimal() + 
     theme(legend.position = 'top', 
           legend.title = element_text(size = 10), 
@@ -9,6 +10,8 @@ my_gg <- function(feedplot) {
           plot.title = element_text(size = 12, 
                                     face = 'bold'), 
           plot.subtitle = element_text(size = 10), 
+          plot.tag.position = 'bottom', 
+          plot.tag = element_text(size = 6), 
           axis.title.x = element_text(size = 10), 
           axis.title.y = element_text(size = 10), 
           plot.caption.position = 'plot', 
@@ -16,7 +19,8 @@ my_gg <- function(feedplot) {
                                       face = 'italic'), 
           panel.grid.minor = element_blank()) + 
     guides(color = guide_legend(direction = 'horizontal')) + 
-    coord_cartesian(clip = 'off')
+    coord_cartesian(clip = 'off') + 
+    labs(tag = paste0('rendered @ ', render_time))
   return(return_me)}
 
 
