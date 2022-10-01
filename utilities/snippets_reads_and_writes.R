@@ -66,7 +66,8 @@ clockout()
 # require(lubridate)
 qp <- function(pltname, pltpath_suffix = NA, plt_inch = 5) {
   plt_timestamp <- paste(year(Sys.time()), month(Sys.time()),  
-                         day(Sys.time()), hour(Sys.time()), minute(Sys.time()), 
+                         day(Sys.time()), hour(Sys.time()), 
+                         minute(Sys.time()), 
                          floor(second(Sys.time())), sep = "-")
   aa <- ifelse(is.na(pltpath_suffix), "", pltpath_suffix)
   plt_filepath <- paste0(getwd(), aa)
@@ -79,5 +80,31 @@ qp <- function(pltname, pltpath_suffix = NA, plt_inch = 5) {
 # test the plot saver +++++++++++++++++++++++++++++++++++++
 # ggplot(data = mtcars, aes(mpg)) + geom_histogram()
 # qp(pltname = "test")
+
+# ^ -----
+
+# saving function for gt tables -------------------------------------
+
+# require(tidyverse)
+# require(lubridate)
+# require(gt)
+gt_printer <- function(arg_gt, 
+                       arg_filenm = '', arg_path_suffix = '') {
+  plt_timestamp <- paste(year(Sys.time()), month(Sys.time()),  
+                         day(Sys.time()), hour(Sys.time()), 
+                         minute(Sys.time()), 
+                         floor(second(Sys.time())), sep = "-")
+  final_filenm <- paste0('ggtable_', arg_filenm, '_', 
+                         plt_timestamp, '.html')
+  final_path <- paste0(getwd(), arg_path_suffix)
+  gtsave(data = arg_gt, filename = final_filenm, path = final_path)
+}
+
+# test ??????????????????????????????????????
+# mtcars |> as_tibble() |> group_by(cyl) |> 
+#   summarise(avg_mpg = mean(mpg), avg_hp = mean(hp)) |> gt() |> 
+  # gt_printer()
+  # gt_printer(arg_filenm = 'alpha_test', 
+  #            arg_path_suffix = '/utilities')
 
 # ^ -----
