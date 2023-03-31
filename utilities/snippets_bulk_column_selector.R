@@ -3,8 +3,8 @@
 # require(tidyverse)
 # require(janitor)
 
-# View(colnames(xx))
-old_cols <- c(colnames(xx))
+# View(colnames(raw_df))
+old_cols <- c(colnames(raw_df))
 
 # manually type the desired column names !!!!!!!!!!!!!!!!!!!!!!!!!!
 new_cols <- as.vector(c('apple', 'ZEBRA'))
@@ -20,22 +20,22 @@ col_checker %>% filter(col_matched == FALSE)
 # View(col_checker %>% filter(col_matched == FALSE))
 
 # bulk select columns into a new df1 object ::::::::::::::::::
-df1 <- xx %>% as_tibble() %>% 
+df1 <- raw_df %>% as_tibble() %>% 
   select(all_of(new_cols)) %>% clean_names()
 dim(df1)
 
 # cleanup ???????????????????????????????????????????????
 rm(old_cols, new_cols, col_matched, col_checker)
-rm(xx)
+rm(raw_df)
 
 # ^ -----
 
 
 # tests ++++++++++++++++++++++++++++++++++++++++++++++++++
-xx <- data.frame(aa = runif(10), 
-                 bb = runif(10), 
-                 apple = runif(10), 
-                 ZEBRA = runif(10), 
-                 column_number_8923 = runif(10))
-xx
+raw_df <- data.frame(aa = runif(10), 
+                     bb = runif(10), 
+                     apple = runif(10), 
+                     ZEBRA = runif(10), 
+                     column_number_8923 = runif(10))
+raw_df
 # run through the script above to confirm functionality
